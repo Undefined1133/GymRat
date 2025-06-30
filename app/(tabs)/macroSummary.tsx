@@ -11,13 +11,24 @@ const TARGETS = {
   fat: 68,
 };
 
+const MACRO_COLORS: Record<string, string> = {
+  Calories: '#f39c12',
+  Carbs: '#3498db',
+  Protein: '#2ecc71',
+  Fat: '#e74c3c',
+}
+
 const MacroSummaryPage = observer(() => {
   const { calories, protein, carbs, fat, reset } = macroStore;
 
   const renderMacro = (label: string, value: number, target: number) => (
-    <View style={styles.macroRow}>
+    <View style={styles.macroRow} key={label}>
       <Text style={styles.macroLabel}>{label}</Text>
-      <ProgressBar progress={Math.min(value / target, 1)} color="#00BFFF" style={styles.progressBar} />
+      <ProgressBar
+        progress={Math.min(value / target, 1)}
+        color={MACRO_COLORS[label] || '#00BFFF'}
+        style={styles.progressBar}
+      />
       <Text style={styles.macroAmount}>{`${value.toFixed(0)} / ${target} g`}</Text>
     </View>
   );
@@ -26,6 +37,7 @@ const MacroSummaryPage = observer(() => {
     <SafeAreaView style={styles.container}>
       <Text style={styles.title}>Today's Intake</Text>
       <View style={styles.card}>
+        {renderMacro('Calories', calories, 1800)}
         {renderMacro('Carbs', carbs, TARGETS.carbs)}
         {renderMacro('Protein', protein, TARGETS.protein)}
         {renderMacro('Fat', fat, TARGETS.fat)}
