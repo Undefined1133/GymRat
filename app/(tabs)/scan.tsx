@@ -7,11 +7,12 @@ import {
 import React, { useRef, useState } from "react";
 import {
   Button,
-  Image,
+  Modal,
   StyleSheet,
   Text,
+  TextInput,
   TouchableOpacity,
-  View,
+  View
 } from "react-native";
 import { ProductInfo } from "../model/ProductInfo";
 import { macroStore } from '../store/MacroStore';
@@ -21,6 +22,8 @@ const BarcodeScanner = () => {
   const [permission, requestPermission] = useCameraPermissions();
   const [scanned, setScanned] = useState(false);
   const [productInfo, setProductInfo] = useState<ProductInfo | null>(null);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [amountConsumed, setAmountConsumed] = useState('');
   const isHandlingScan = useRef(false);
 
   if (!permission) {
@@ -38,35 +41,39 @@ const BarcodeScanner = () => {
       </View>
     );
   }
-
-  const handleBarCodeScanned = async ({
-    type,
-    data,
-  }: BarcodeScanningResult) => {
+  
+  const handleBarCodeScanned = async ({ type, data }: BarcodeScanningResult) => {
     if (isHandlingScan.current) return;
     isHandlingScan.current = true;
     setScanned(true);
 
     try {
-      const response = await fetch(
-        `https://world.openfoodfacts.org/api/v0/product/${data}.json`
-      );
+      const response = await fetch(`https://world.openfoodfacts.org/api/v0/product/${data}.json`);
       const result = await response.json();
       setProductInfo(result.product);
-      macroStore.addMacros({
-        calories: calculateTotalCalories(result.product),
-        protein: parseNumber(result.product.nutriments['proteins_100g']),
-        carbs: parseNumber(result.product.nutriments['carbohydrates_100g']),
-        fat: parseNumber(result.product.nutriments['fat_100g']),
-      })
-      alert(
-        `Product calories: ${result.product.nutriments["energy-kcal_100g"]}`
-      );
+      setModalVisible(true);
     } catch (error) {
       alert("Error fetching product data" + error);
     } finally {
       isHandlingScan.current = false;
     }
+  };
+
+  const confirmConsumption = () => {
+    if (!productInfo) return;
+    const consumed = parseFloat(amountConsumed);
+    const totalQuantity = parseFloat(String(productInfo.product_quantity));
+    const factor = !isNaN(consumed) && consumed > 0 && totalQuantity > 0 ? consumed / totalQuantity : 1;
+    
+    macroStore.addMacros({
+      calories: calculateTotalCalories(productInfo) * factor,
+      protein: parseNumber(productInfo.nutriments['proteins_100g']) * factor,
+      carbs: parseNumber(productInfo.nutriments['carbohydrates_100g']) * factor,
+      fat: parseNumber(productInfo.nutriments['fat_100g']) * factor,
+    });
+
+    setModalVisible(false);
+    setAmountConsumed('');
   };
 
   const toggleCameraFacing = () => {
@@ -102,31 +109,27 @@ const BarcodeScanner = () => {
             <Text style={styles.text}>Flip Camera</Text>
           </TouchableOpacity>
           {scanned && (
-            <TouchableOpacity
-              style={styles.button}
-              onPress={() => setScanned(false)}
-            >
+            <TouchableOpacity style={styles.button} onPress={() => setScanned(false)}>
               <Text style={styles.text}>Tap to Scan Again</Text>
             </TouchableOpacity>
           )}
         </View>
       </CameraView>
 
-      {productInfo && (
-        <View style={styles.productInfo}>
-          <Text>Product Name: {getProductName(productInfo)}</Text>
-          <Text>Calories per 100g: {productInfo.nutriments["energy-kcal_100g"]}</Text>
-          <Text>Total Calories in Product: {calculateTotalCalories(productInfo)}</Text>
-          <Text>Product quantity: {productInfo.product_quantity}g</Text>
-          <Text>Proteins per 100g: {productInfo.nutriments["proteins_100g"]}g</Text>
-          <Text>Carbs per 100g: {productInfo.nutriments["carbohydrates_100g"]}g</Text>
-          <Text>Fats per 100g: {productInfo.nutriments["fat_100g"]}g</Text>
-          <Image
-            source={{ uri: productInfo.image_url }}
-            style={styles.productImage}
-          />
+      <Modal visible={modalVisible} transparent={true} animationType="slide">
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+            <Text>Enter amount consumed (g):</Text>
+            <TextInput
+              style={styles.input}
+              keyboardType="numeric"
+              value={amountConsumed}
+              onChangeText={setAmountConsumed}
+            />
+            <Button title="Confirm" onPress={confirmConsumption} />
+          </View>
         </View>
-      )}
+      </Modal>
     </View>
   );
 };
@@ -144,6 +147,9 @@ const styles = StyleSheet.create({
   text: { fontSize: 24, fontWeight: "bold", color: "white" },
   productInfo: { padding: 20, backgroundColor: "#fff", alignItems: "center" },
   productImage: { width: 200, height: 100, marginTop: 10 },
+  modalContainer: { flex:1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0,0,0,0.5)' },
+  modalContent: { backgroundColor: 'white', padding: 20, borderRadius: 10 },
+  input: { borderWidth: 1, borderColor: '#ccc', padding: 8, marginVertical: 10, width: 100, textAlign: 'center' },
 });
 
 export default BarcodeScanner;
