@@ -7,4 +7,3 @@
       [key: string]: number;
     };
   }
-  

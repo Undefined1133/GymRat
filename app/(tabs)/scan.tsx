@@ -1,11 +1,11 @@
-import { BarcodeScanningResult, CameraView, useCameraPermissions } from 'expo-camera';
+import { BarcodeScanningResult, CameraType, CameraView, useCameraPermissions } from 'expo-camera';
 import React, { useRef, useState } from 'react';
 import { Button, Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { ProductInfo } from '../model/ProductInfo';
 
 const BarcodeScanner = () => {
-    const [facing, setFacing] = useState('back');
-    const [permission, requestPermission] = useCameraPermissions();
+  const [facing, setFacing] = useState<CameraType>('back');
+  const [permission, requestPermission] = useCameraPermissions();
     const [scanned, setScanned] = useState(false);
     const [productInfo, setProductInfo] = useState<ProductInfo | null>(null);
     const isHandlingScan = useRef(false);
@@ -61,7 +61,9 @@ const BarcodeScanner = () => {
                     )}
                 </View>
             </CameraView>
+            
             {productInfo && (
+              
                 <View style={styles.productInfo}>
                     <Text>Product Name: {getProductName(productInfo)}</Text>
                     <Text>Calories per 100g: {productInfo.nutriments['energy-kcal_100g']}</Text>
