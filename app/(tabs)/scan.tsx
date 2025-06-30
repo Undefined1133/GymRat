@@ -23,7 +23,6 @@ const BarcodeScanner = () => {
 
     const handleBarCodeScanned = async ({ type, data }: BarcodeScanningResult) => {
         if (isHandlingScan.current) return;
-
         isHandlingScan.current = true;
         setScanned(true);
 
@@ -39,7 +38,7 @@ const BarcodeScanner = () => {
         }
     };
 
-    function toggleCameraFacing() {
+    const toggleCameraFacing = () => {
         setFacing(current => (current === 'back' ? 'front' : 'back'));
     }
 
