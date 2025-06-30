@@ -1,29 +1,26 @@
-import { observer } from 'mobx-react-lite'
-import React from 'react'
-import { Button, SafeAreaView, StyleSheet, Text, View } from 'react-native'
-import { ProgressBar } from 'react-native-paper'
-import { macroStore } from '../store/MacroStore'
+import { observer } from 'mobx-react-lite';
+import React from 'react';
+import { Button, SafeAreaView, StyleSheet, Text, View } from 'react-native';
+import { ProgressBar } from 'react-native-paper';
+
+import { macroStore } from '../store/MacroStore';
 
 const TARGETS = {
   protein: 103,
   carbs: 258,
   fat: 68,
-}
+};
 
 const MacroSummaryPage = observer(() => {
-  const { calories, protein, carbs, fat, reset } = macroStore
+  const { calories, protein, carbs, fat, reset } = macroStore;
 
   const renderMacro = (label: string, value: number, target: number) => (
     <View style={styles.macroRow}>
       <Text style={styles.macroLabel}>{label}</Text>
-      <ProgressBar
-        progress={Math.min(value / target, 1)}
-        color="#00BFFF"
-        style={styles.progressBar}
-      />
+      <ProgressBar progress={Math.min(value / target, 1)} color="#00BFFF" style={styles.progressBar} />
       <Text style={styles.macroAmount}>{`${value.toFixed(0)} / ${target} g`}</Text>
     </View>
-  )
+  );
 
   return (
     <SafeAreaView style={styles.container}>
@@ -35,8 +32,8 @@ const MacroSummaryPage = observer(() => {
       </View>
       <Button title="Reset" onPress={() => reset()} />
     </SafeAreaView>
-  )
-})
+  );
+});
 
 const styles = StyleSheet.create({
   container: { flex: 1, padding: 20, backgroundColor: '#fff' },
@@ -56,6 +53,6 @@ const styles = StyleSheet.create({
   macroLabel: { fontSize: 16, marginBottom: 4 },
   progressBar: { height: 8, borderRadius: 4 },
   macroAmount: { fontSize: 14, marginTop: 4, fontWeight: '500' },
-})
+});
 
-export default MacroSummaryPage
+export default MacroSummaryPage;
