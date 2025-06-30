@@ -14,6 +14,7 @@ import {
   View,
 } from "react-native";
 import { ProductInfo } from "../model/ProductInfo";
+import { macroStore } from '../store/MacroStore';
 
 const BarcodeScanner = () => {
   const [facing, setFacing] = useState<CameraType>("back");
@@ -52,6 +53,12 @@ const BarcodeScanner = () => {
       );
       const result = await response.json();
       setProductInfo(result.product);
+      macroStore.addMacros({
+        calories: calculateTotalCalories(result.product),
+        protein: parseNumber(result.product.nutriments['proteins_100g']),
+        carbs: parseNumber(result.product.nutriments['carbohydrates_100g']),
+        fat: parseNumber(result.product.nutriments['fat_100g']),
+      })
       alert(
         `Product calories: ${result.product.nutriments["energy-kcal_100g"]}`
       );
@@ -77,10 +84,10 @@ const BarcodeScanner = () => {
     return isNaN(parsed) ? 0 : parsed;
   };
 
-  const calculateTotalCalories = (product: ProductInfo): string => {
+  const calculateTotalCalories = (product: ProductInfo): number => {
     const caloriesPer100g = parseNumber(product.nutriments["energy-kcal_100g"]);
     const quantity = parseNumber(product.product_quantity);
-    return ((caloriesPer100g * quantity) / 100).toFixed(2);
+    return parseFloat(((caloriesPer100g * quantity) / 100).toFixed(2));
   };
 
   return (
@@ -108,19 +115,11 @@ const BarcodeScanner = () => {
       {productInfo && (
         <View style={styles.productInfo}>
           <Text>Product Name: {getProductName(productInfo)}</Text>
-          <Text>
-            Calories per 100g: {productInfo.nutriments["energy-kcal_100g"]}
-          </Text>
-          <Text>
-            Total Calories in Product: {calculateTotalCalories(productInfo)}
-          </Text>
+          <Text>Calories per 100g: {productInfo.nutriments["energy-kcal_100g"]}</Text>
+          <Text>Total Calories in Product: {calculateTotalCalories(productInfo)}</Text>
           <Text>Product quantity: {productInfo.product_quantity}g</Text>
-          <Text>
-            Proteins per 100g: {productInfo.nutriments["proteins_100g"]}g
-          </Text>
-          <Text>
-            Carbs per 100g: {productInfo.nutriments["carbohydrates_100g"]}g
-          </Text>
+          <Text>Proteins per 100g: {productInfo.nutriments["proteins_100g"]}g</Text>
+          <Text>Carbs per 100g: {productInfo.nutriments["carbohydrates_100g"]}g</Text>
           <Text>Fats per 100g: {productInfo.nutriments["fat_100g"]}g</Text>
           <Image
             source={{ uri: productInfo.image_url }}
