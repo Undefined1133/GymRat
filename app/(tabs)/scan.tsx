@@ -42,6 +42,24 @@ const BarcodeScanner = () => {
         setFacing(current => (current === 'back' ? 'front' : 'back'));
     }
 
+    
+const getProductName = (product: ProductInfo): string => {
+  return product.product_name && product.product_name.trim() !== ''
+      ? product.product_name
+      : product.product_name_en || 'Unknown Product';
+};
+
+const parseNumber = (value: any): number => {
+  const parsed = parseFloat(String(value));
+  return isNaN(parsed) ? 0 : parsed;
+};
+
+const calculateTotalCalories = (product: ProductInfo): string => {
+  const caloriesPer100g = parseNumber(product.nutriments['energy-kcal_100g']);
+  const quantity = parseNumber(product.product_quantity);
+  return ((caloriesPer100g * quantity) / 100).toFixed(2);
+};
+
     return (
         <View style={styles.container}>
             <CameraView
@@ -76,7 +94,7 @@ const BarcodeScanner = () => {
             )}
         </View>
     );
-}
+  }
 
 const styles = StyleSheet.create({
   container: { flex: 1, justifyContent: 'center' },
@@ -87,22 +105,5 @@ const styles = StyleSheet.create({
   productInfo: { padding: 20, backgroundColor: '#fff', alignItems: 'center' },
   productImage: { width: 200, height: 100, marginTop: 10 },
 });
-
-const getProductName = (product: ProductInfo): string => {
-  return product.product_name && product.product_name.trim() !== ''
-      ? product.product_name
-      : product.product_name_en || 'Unknown Product';
-};
-
-const parseNumber = (value: any): number => {
-  const parsed = parseFloat(String(value));
-  return isNaN(parsed) ? 0 : parsed;
-};
-
-const calculateTotalCalories = (product: ProductInfo): string => {
-  const caloriesPer100g = parseNumber(product.nutriments['energy-kcal_100g']);
-  const quantity = parseNumber(product.product_quantity);
-  return ((caloriesPer100g * quantity) / 100).toFixed(2);
-};
 
 export default BarcodeScanner;
