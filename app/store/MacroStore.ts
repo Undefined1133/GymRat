@@ -11,6 +11,8 @@ export class MacroStore {
   }
 
   addMacros({ calories, protein, carbs, fat }: { calories: number; protein: number; carbs: number; fat: number }) {
+    console.log("Adding macros... protein : " + protein + " carbs " + carbs + " fats " + fat + " calories " + calories)
+    console.log("To existing...  protein : " + this.protein + " carbs " +  this.carbs + " fats " +  this.fat + " calories " +  this.calories);
     this.calories += calories;
     this.protein += protein;
     this.carbs += carbs;
