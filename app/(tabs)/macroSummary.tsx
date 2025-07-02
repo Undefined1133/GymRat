@@ -6,9 +6,10 @@ import { ProgressBar } from 'react-native-paper';
 import { macroStore } from '../store/MacroStore';
 
 const TARGETS = {
-  protein: 103,
-  carbs: 258,
-  fat: 68,
+  calories: 1800,
+  protein: 140,
+  carbs: 200,
+  fat: 59,
 };
 
 const MACRO_COLORS: Record<string, string> = {
@@ -37,7 +38,7 @@ const MacroSummaryPage = observer(() => {
     <SafeAreaView style={styles.container}>
       <Text style={styles.title}>Today's Intake</Text>
       <View style={styles.card}>
-        {renderMacro('Calories', calories, 1800)}
+        {renderMacro('Calories', calories, TARGETS.calories)}
         {renderMacro('Carbs', carbs, TARGETS.carbs)}
         {renderMacro('Protein', protein, TARGETS.protein)}
         {renderMacro('Fat', fat, TARGETS.fat)}

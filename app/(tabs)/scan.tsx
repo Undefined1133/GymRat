@@ -1,6 +1,6 @@
 import { BarcodeScanningResult, CameraType, CameraView, useCameraPermissions } from 'expo-camera';
 import React, { useRef, useState } from 'react';
-import { Button, Modal, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Button, Image, Modal, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 
 import { ProductInfo } from '../model/ProductInfo';
 import { macroStore } from '../store/MacroStore';
@@ -52,14 +52,27 @@ const BarcodeScanner = () => {
       return;
     }
     const consumed = parseFloat(amountConsumed);
-    const totalQuantity = parseFloat(String(productInfo.product_quantity));
-    const factor = !isNaN(consumed) && consumed > 0 && totalQuantity > 0 ? consumed / totalQuantity : 1;
+    const totalQuantity =
+      parseNumber(productInfo.product_quantity) > 0
+        ? parseNumber(productInfo.product_quantity)
+        : parseNumber(productInfo.serving_size);
+    
+    const factor =
+      !isNaN(consumed) && consumed > 0 && totalQuantity > 0
+        ? consumed / totalQuantity
+        : 1;
+
+        console.log("Consumed: " + consumed + " totalQuantity: " + totalQuantity + " factor: " + factor);
+        const proteinPerProduct = parseNumber(productInfo.nutriments['proteins_100g']) * (totalQuantity / 100);
+const carbsPerProduct = parseNumber(productInfo.nutriments['carbohydrates_100g']) * (totalQuantity / 100);
+const fatPerProduct = parseNumber(productInfo.nutriments['fat_100g']) * (totalQuantity / 100);
+const caloriesPerProduct = calculateTotalCalories(productInfo);
 
     macroStore.addMacros({
-      calories: calculateTotalCalories(productInfo) * factor,
-      protein: parseNumber(productInfo.nutriments['proteins_100g']) * factor,
-      carbs: parseNumber(productInfo.nutriments['carbohydrates_100g']) * factor,
-      fat: parseNumber(productInfo.nutriments['fat_100g']) * factor,
+      calories: caloriesPerProduct * factor,
+      protein: proteinPerProduct * factor,
+      carbs: carbsPerProduct * factor,
+      fat: fatPerProduct * factor,
     });
 
     setModalVisible(false);
@@ -84,9 +97,15 @@ const BarcodeScanner = () => {
 
   const calculateTotalCalories = (product: ProductInfo): number => {
     const caloriesPer100g = parseNumber(product.nutriments['energy-kcal_100g']);
-    const quantity = parseNumber(product.product_quantity);
-
-    return parseFloat(((caloriesPer100g * quantity) / 100).toFixed(2));
+    console.log("Calories per 100g = " + caloriesPer100g);
+    const quantity =
+    parseNumber(product.product_quantity) > 0
+      ? parseNumber(product.product_quantity)
+      : parseNumber(product.serving_size);   
+    console.log("Product quantity = " + quantity)
+    const bob = parseFloat(((caloriesPer100g * quantity) / 100).toFixed(2));
+    console.log("Calories per product = " + bob)
+    return bob;
   };
 
   return (
@@ -118,6 +137,21 @@ const BarcodeScanner = () => {
           </View>
         </View>
       </Modal>
+      {productInfo && (
+  <View style={styles.productInfo}>
+    <Text>Product Name: {getProductName(productInfo)}</Text>
+    <Text>Calories per 100g: {productInfo.nutriments["energy-kcal_100g"]}</Text>
+    <Text>Total Calories in Product: {calculateTotalCalories(productInfo)}</Text>
+    <Text>Product quantity: {productInfo.product_quantity}g</Text>
+    <Text>Proteins per 100g: {productInfo.nutriments["proteins_100g"]}g</Text>
+    <Text>Carbs per 100g: {productInfo.nutriments["carbohydrates_100g"]}g</Text>
+    <Text>Fats per 100g: {productInfo.nutriments["fat_100g"]}g</Text>
+    <Image
+      source={{ uri: productInfo.image_url }}
+      style={styles.productImage}
+    />
+  </View>
+)}
     </View>
   );
 };
