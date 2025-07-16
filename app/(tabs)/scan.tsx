@@ -1,7 +1,7 @@
 import { BarcodeScanningResult, CameraType, CameraView, useCameraPermissions } from 'expo-camera';
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Button, Image, Modal, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
-
+import { signInIfNeeded } from '../firebase/authTest';
 import { ProductInfo } from '../model/ProductInfo';
 import { macroStore } from '../store/MacroStore';
 
@@ -13,6 +13,9 @@ const BarcodeScanner = () => {
   const [modalVisible, setModalVisible] = useState(false);
   const [amountConsumed, setAmountConsumed] = useState('');
   const isHandlingScan = useRef(false);
+  useEffect(() => {
+    signInIfNeeded()
+  }, [])
 
   if (!permission) {
     return <View />;
@@ -37,7 +40,6 @@ const BarcodeScanner = () => {
     try {
       const response = await fetch(`https://world.openfoodfacts.org/api/v0/product/${data}.json`);
       const result = await response.json();
-
       setProductInfo(result.product);
       setModalVisible(true);
     } catch (error) {

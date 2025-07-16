@@ -1,4 +1,6 @@
+import { doc, setDoc } from 'firebase/firestore';
 import { makeAutoObservable } from 'mobx';
+import { auth, db } from "../firebase/firebaseConfig";
 
 export class MacroStore {
   calories = 0;
@@ -17,6 +19,7 @@ export class MacroStore {
     this.protein += protein;
     this.carbs += carbs;
     this.fat += fat;
+    saveMacrosToFirestore({calories:calories, protein:protein, carbs:carbs, fat:fat})
   }
 
   reset() {
@@ -26,5 +29,24 @@ export class MacroStore {
     this.fat = 0;
   }
 }
+
+export const saveMacrosToFirestore = async (macros: {
+  calories: number;
+  protein: number;
+  carbs: number;
+  fat: number;
+}) => {
+  if (!auth.currentUser) return;
+const userId = auth.currentUser?.uid;
+const dateKey = new Date().toISOString().split("T")[0];
+
+const dailyDocRef = doc(db, 'users', userId, 'macros', dateKey);
+
+await setDoc(dailyDocRef, {
+  ...macros,
+});
+
+  console.log("Macros saved to Firestore");
+};
 
 export const macroStore = new MacroStore();
