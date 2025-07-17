@@ -3,13 +3,13 @@
   "main": "expo-router/entry",
   "version": "1.0.0",
   "scripts": {
-  "start": "expo start",
-  "reset-project": "node ./scripts/reset-project.js",
-  "android": "expo start --android",
-  "ios": "expo start --ios",
-  "web": "expo start --web",
-  "lint": "eslint \"app/**/*.{ts,tsx}\" \"src/**/*.{ts,tsx}\" --max-warnings=0",
-  "lint:fix": "eslint \"app/**/*.{ts,tsx}\" \"src/**/*.{ts,tsx}\" --fix"
+    "start": "expo start",
+    "reset-project": "node ./scripts/reset-project.js",
+    "android": "expo start --android",
+    "ios": "expo start --ios",
+    "web": "expo start --web",
+    "lint": "eslint \"app/**/*.{ts,tsx}\" \"src/**/*.{ts,tsx}\" --max-warnings=0",
+    "lint:fix": "eslint \"app/**/*.{ts,tsx}\" \"src/**/*.{ts,tsx}\" --fix"
   },
   "dependencies": {
     "@expo/vector-icons": "^14.1.0",
@@ -30,6 +30,7 @@
     "expo-symbols": "~0.4.5",
     "expo-system-ui": "~5.0.9",
     "expo-web-browser": "~14.2.0",
+    "firebase": "^11.10.0",
     "mobx": "^6.13.7",
     "mobx-react-lite": "^4.1.0",
     "react": "19.0.0",
@@ -56,6 +57,7 @@
     "eslint-plugin-react": "^7.37.5",
     "eslint-plugin-react-hooks": "^5.2.0",
     "prettier": "^3.6.2",
+    "react-native-dotenv": "^3.4.11",
     "typescript": "~5.8.3"
   },
   "private": true
