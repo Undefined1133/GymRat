@@ -4,7 +4,7 @@ import { getAuth } from 'firebase/auth'
 import { getFirestore } from 'firebase/firestore'
 
 const firebaseConfig = {
-  apiKey: Constants.expoConfig?.extra?.apiKey,
+  apiKey: Constants.expoConfig?.extra?.firebaseApiKey,
   authDomain: Constants.expoConfig?.extra?.firebaseAuthDomain,
   projectId: Constants.expoConfig?.extra?.firebaseProjectId,
   storageBucket: Constants.expoConfig?.extra?.firebaseStorageBucket,
